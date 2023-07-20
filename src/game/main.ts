@@ -8,6 +8,12 @@ declare global {
   }
 }
 
+export type TUpdateFnList = {
+  [key: string]: {
+    [key: string]: (delta: number) => void
+  }
+}
+
 export class Game {
   private _three = THREE
   public renderer: THREE.WebGLRenderer
@@ -19,6 +25,10 @@ export class Game {
   public clock: THREE.Clock = new THREE.Clock()
 
   public gamepad: Gamepad | null = null
+
+  public updateFnList: TUpdateFnList = {
+    moveObject: {}
+  }
 
   constructor(options: {
     renderer: {
@@ -70,6 +80,12 @@ export class Game {
     const delta = this.clock.getDelta()
     this.activeCamera.controls.update(delta)
 
+    Object.keys(this.updateFnList).forEach((key) => {
+      Object.keys(this.updateFnList[key]).forEach((fnKey) => {
+        this.updateFnList[key][fnKey](delta)
+      })
+    })
+
     this.renderer.render(this.activeScene, this.activeCamera.camera)
   }
 
@@ -77,14 +93,22 @@ export class Game {
     window.addEventListener(
       'gamepadconnected',
       (e) => {
-        this.gamepad = gamepadHandler(e, true)
+        console.debug(
+          'Gamepad connected at index %d: %s. %d buttons, %d axes.',
+          e.gamepad.index,
+          e.gamepad.id,
+          e.gamepad.buttons.length,
+          e.gamepad.axes.length
+        )
+        this.gamepad = navigator.getGamepads()[e.gamepad.index]
       },
       false
     )
     window.addEventListener(
       'gamepaddisconnected',
       (e) => {
-        this.gamepad = gamepadHandler(e, false)
+        console.debug('Gamepad disconnected from index %d: %s', e.gamepad.index, e.gamepad.id)
+        this.gamepad = null
       },
       false
     )

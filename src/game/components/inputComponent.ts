@@ -1,6 +1,6 @@
 import type { IGameComponent } from './gameComponent'
 
-export interface IInputComponent extends IGameComponent {
+export type TGamepadMovement = {
   leftStick: {
     x: number
     y: number
@@ -34,5 +34,16 @@ export interface IInputComponent extends IGameComponent {
   stickButtons: {
     left: boolean
     right: boolean
+  }
+}
+
+export interface IInputComponent extends IGameComponent {
+  movement: {
+    x: number
+    y: number
+  }
+  camera: {
+    x: number
+    y: number
   }
 }
