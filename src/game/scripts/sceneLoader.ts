@@ -18,17 +18,19 @@ export function loadScene(rendererElement: HTMLElement) {
 
   player.mesh.position.set(0, 1, 0)
   player.init(scene)
+  player.attachInputHandler()
 
-  setTimeout(() => {
-    player.destroy(scene)
-  }, 2000)
-
-  camera.controls.setTarget(player.mesh.position.x, player.mesh.position.y, player.mesh.position.z)
+  // camera.controls.setTarget(player.mesh.position.x, player.mesh.position.y, player.mesh.position.z)
+  camera.isLockedOnPlayer = true
 
   //! DEBUG ONLY
   const gridHelper = new THREE.GridHelper(100, 100)
   gridHelper.position.y = 0.01
   scene.add(gridHelper)
+
+  const axesHelper = new THREE.AxesHelper(5)
+  axesHelper.position.y = 0.02
+  scene.add(axesHelper)
 
   scene.add(...addRandomObstacles())
 

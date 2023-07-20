@@ -4,7 +4,14 @@
 
 <script setup lang="ts">
 import { Game } from '@/game/main'
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
+
+if (import.meta.hot) {
+  import.meta.hot.accept()
+  import.meta.hot.dispose(() => {
+    window.location.reload()
+  })
+}
 
 const game = new Game({
   renderer: {

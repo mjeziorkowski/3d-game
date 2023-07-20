@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { loadScene } from './scripts/sceneLoader'
-import type { Camera } from './objects/cameraObject'
+import type { Camera, PlayerCamera } from './objects/cameraObject'
+import { InputList } from './scripts/inputHandler'
 
 declare global {
   interface Window {
@@ -20,7 +21,7 @@ export class Game {
 
   public activeScene: THREE.Scene | null = null
 
-  public activeCamera: Camera | null = null
+  public activeCamera: Camera | PlayerCamera | null = null
 
   public clock: THREE.Clock = new THREE.Clock()
 
@@ -30,12 +31,17 @@ export class Game {
     moveObject: {}
   }
 
+  public userInput: InputList = new InputList()
+
+  public settings: TSettings
+
   constructor(options: {
     renderer: {
       width: number
       height: number
     }
   }) {
+    this.settings = this._loadSettings()
     window._game = this
     this.renderer = new THREE.WebGLRenderer()
     this.resizeRenderer(options.renderer.width, options.renderer.height)
@@ -43,8 +49,6 @@ export class Game {
     window.addEventListener('resize', () => {
       this.resizeRenderer(window.innerWidth, window.innerHeight)
     })
-
-    this.gamepadListener()
   }
 
   public resizeRenderer(width: number, height: number) {
@@ -89,28 +93,39 @@ export class Game {
     this.renderer.render(this.activeScene, this.activeCamera.camera)
   }
 
-  public gamepadListener() {
-    window.addEventListener(
-      'gamepadconnected',
-      (e) => {
-        console.debug(
-          'Gamepad connected at index %d: %s. %d buttons, %d axes.',
-          e.gamepad.index,
-          e.gamepad.id,
-          e.gamepad.buttons.length,
-          e.gamepad.axes.length
-        )
-        this.gamepad = navigator.getGamepads()[e.gamepad.index]
-      },
-      false
-    )
-    window.addEventListener(
-      'gamepaddisconnected',
-      (e) => {
-        console.debug('Gamepad disconnected from index %d: %s', e.gamepad.index, e.gamepad.id)
-        this.gamepad = null
-      },
-      false
-    )
+  private _loadSettings(): TSettings {
+    return {
+      debug: true,
+      maxSpeed: 10,
+      camera: {
+        sensitivity: 100,
+        defaultOffsetFromPlayer: {
+          polarAngle: 0.7,
+          azimuthAngle: 0,
+          distanceToObject: 7
+        },
+        invertAxis: {
+          x: false,
+          y: true
+        }
+      }
+    }
+  }
+}
+
+export type TSettings = {
+  debug: boolean
+  maxSpeed: number
+  camera: {
+    sensitivity: number
+    defaultOffsetFromPlayer: {
+      polarAngle: number
+      azimuthAngle: number
+      distanceToObject: number
+    }
+    invertAxis: {
+      x: boolean
+      y: boolean
+    }
   }
 }

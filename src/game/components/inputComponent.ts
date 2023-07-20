@@ -40,7 +40,7 @@ export type TGamepadMovement = {
 export interface IInputComponent extends IGameComponent {
   movement: {
     x: number
-    y: number
+    z: number
   }
   camera: {
     x: number
